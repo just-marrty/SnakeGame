@@ -10,5 +10,26 @@
 			<integer>0</integer>
 		</dict>
 	</dict>
+<<<<<<< HEAD
+=======
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>5B269AAB2E0475D400A6C7C2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5B269AB82E0475D500A6C7C2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5B269AC22E0475D500A6C7C2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+>>>>>>> 598cb2b (Initial Commit)
 </dict>
 </plist>

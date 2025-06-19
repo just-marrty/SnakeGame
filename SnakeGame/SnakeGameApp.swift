@@ -11,7 +11,9 @@ import SwiftUI
 struct SnakeGameApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            DashboardView() // nebo ContentView(), pokud chceš začít rovnou hrou
         }
     }
 }
+
+
