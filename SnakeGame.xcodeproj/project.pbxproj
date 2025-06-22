@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5B269B562E07320700A6C7C2 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5B269B542E07320700A6C7C2 /* Model.xcdatamodeld */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		5B269ABA2E0475D500A6C7C2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,14 +28,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5B269AAC2E0475D400A6C7C2 /* SnakeGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnakeGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		5B269AB92E0475D500A6C7C2 /* SnakeGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnakeGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5B269AC32E0475D500A6C7C2 /* SnakeGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnakeGameUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B269B552E07320700A6C7C2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		5B269BC32E07404300A6C7C2 /* SnakeGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = SnakeGame.app; path = "/Users/martin/Library/CloudStorage/Dropbox/SwiftProjects/SnakeGame/build/Debug-iphoneos/SnakeGame.app"; sourceTree = "<absolute>"; };
+		5B269BC42E07424000A6C7C2 /* SnakeGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = SnakeGameTests.xctest; path = "/Users/martin/Library/CloudStorage/Dropbox/SwiftProjects/SnakeGame/build/Debug-iphoneos/SnakeGame.app/PlugIns/SnakeGameTests.xctest"; sourceTree = "<absolute>"; };
+		5B269BC52E07424000A6C7C2 /* SnakeGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = SnakeGameUITests.xctest; path = "/Users/martin/Library/CloudStorage/Dropbox/SwiftProjects/SnakeGame/build/Debug-iphoneos/SnakeGameUITests-Runner.app/PlugIns/SnakeGameUITests.xctest"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5B269B8C2E0737EB00A6C7C2 /* Exceptions for "SnakeGame" folder in "SnakeGame" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5B269AAB2E0475D400A6C7C2 /* SnakeGame */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5B269AAE2E0475D400A6C7C2 /* SnakeGame */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5B269B8C2E0737EB00A6C7C2 /* Exceptions for "SnakeGame" folder in "SnakeGame" target */,
+			);
 			path = SnakeGame;
 			sourceTree = "<group>";
 		};
@@ -75,21 +93,11 @@
 		5B269AA32E0475D400A6C7C2 = {
 			isa = PBXGroup;
 			children = (
+				5B269B542E07320700A6C7C2 /* Model.xcdatamodeld */,
 				5B269AAE2E0475D400A6C7C2 /* SnakeGame */,
 				5B269ABC2E0475D500A6C7C2 /* SnakeGameTests */,
 				5B269AC62E0475D500A6C7C2 /* SnakeGameUITests */,
-				5B269AAD2E0475D400A6C7C2 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		5B269AAD2E0475D400A6C7C2 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				5B269AAC2E0475D400A6C7C2 /* SnakeGame.app */,
-				5B269AB92E0475D500A6C7C2 /* SnakeGameTests.xctest */,
-				5B269AC32E0475D500A6C7C2 /* SnakeGameUITests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -114,7 +122,7 @@
 			packageProductDependencies = (
 			);
 			productName = SnakeGame;
-			productReference = 5B269AAC2E0475D400A6C7C2 /* SnakeGame.app */;
+			productReference = 5B269BC32E07404300A6C7C2 /* SnakeGame.app */;
 			productType = "com.apple.product-type.application";
 		};
 		5B269AB82E0475D500A6C7C2 /* SnakeGameTests */ = {
@@ -137,7 +145,7 @@
 			packageProductDependencies = (
 			);
 			productName = SnakeGameTests;
-			productReference = 5B269AB92E0475D500A6C7C2 /* SnakeGameTests.xctest */;
+			productReference = 5B269BC42E07424000A6C7C2 /* SnakeGameTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		5B269AC22E0475D500A6C7C2 /* SnakeGameUITests */ = {
@@ -160,7 +168,7 @@
 			packageProductDependencies = (
 			);
 			productName = SnakeGameUITests;
-			productReference = 5B269AC32E0475D500A6C7C2 /* SnakeGameUITests.xctest */;
+			productReference = 5B269BC52E07424000A6C7C2 /* SnakeGameUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -196,7 +204,7 @@
 			mainGroup = 5B269AA32E0475D400A6C7C2;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 5B269AAD2E0475D400A6C7C2 /* Products */;
+			productRefGroup = 5B269AA32E0475D400A6C7C2;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -236,6 +244,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B269B562E07320700A6C7C2 /* Model.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,6 +409,7 @@
 				DEVELOPMENT_TEAM = 959R7732AD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SnakeGame/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -428,6 +438,7 @@
 				DEVELOPMENT_TEAM = 959R7732AD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SnakeGame/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -558,6 +569,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		5B269B542E07320700A6C7C2 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				5B269B552E07320700A6C7C2 /* Model.xcdatamodel */,
+			);
+			currentVersion = 5B269B552E07320700A6C7C2 /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 5B269AA42E0475D400A6C7C2 /* Project object */;
 }

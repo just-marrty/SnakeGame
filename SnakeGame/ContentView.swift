@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct SnakeGameView: View {
     @StateObject private var settings = SettingsManager()
     @StateObject private var game: SnakeGame
     @StateObject private var audioManager = AudioManager.shared
+    @State private var showingNameInput = false
+    @Environment(\.managedObjectContext) private var viewContext
 
     init() {
         let settingsManager = SettingsManager()
@@ -30,19 +33,19 @@ struct SnakeGameView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("SCORE")
-                                .font(.custom("PressStart2P-Regular", size: 15))
+                                .font(.custom("Press Start 2P", size: 15))
                                 .foregroundColor(.green.opacity(0.6))
                             Text("\(game.score)")
-                                .font(.custom("PressStart2P-Regular", size: 18))
+                                .font(.custom("Press Start 2P", size: 18))
                                 .foregroundColor(.green)
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("HIGH")
-                                .font(.custom("PressStart2P-Regular", size: 15))
+                                .font(.custom("Press Start 2P", size: 15))
                                 .foregroundColor(.gray)
                             Text("\(game.highScore)")
-                                .font(.custom("PressStart2P-Regular", size: 18))
+                                .font(.custom("Press Start 2P", size: 18))
                                 .foregroundColor(.white)
                         }
                     }
@@ -52,8 +55,8 @@ struct SnakeGameView: View {
                     .background(Color.black.opacity(0.5))
 
                     GeometryReader { geo in
-                        let width = geo.size.width - 40
-                        let cellSize = floor(width / CGFloat(SnakeGame.columns))
+                        let width = max(geo.size.width - 40, 1)
+                        let cellSize = max(floor(width / CGFloat(SnakeGame.columns)), 1)
                         let playableWidth = cellSize * CGFloat(SnakeGame.columns)
                         let playableHeight = cellSize * CGFloat(SnakeGame.rows)
 
@@ -126,11 +129,11 @@ struct SnakeGameView: View {
 
                     VStack(spacing: 20) {
                         Text("GAME OVER")
-                            .font(.custom("PressStart2P-Regular", size: 20))
+                            .font(.custom("Press Start 2P", size: 20))
                             .foregroundColor(.red)
 
                         Text("Final Score: \(game.score)")
-                            .font(.custom("PressStart2P-Regular", size: 14))
+                            .font(.custom("Press Start 2P", size: 14))
                             .foregroundColor(.white)
 
                         VStack(spacing: 12) {
@@ -139,7 +142,7 @@ struct SnakeGameView: View {
                                 game.resetGame()
                             }) {
                                 Text("PLAY AGAIN")
-                                    .font(.custom("PressStart2P-Regular", size: 12))
+                                    .font(.custom("Press Start 2P", size: 12))
                                     .padding(12)
                                     .background(Color.green)
                                     .foregroundColor(.black)
@@ -155,7 +158,7 @@ struct SnakeGameView: View {
                                 dismiss()
                             }) {
                                 Text("MENU")
-                                    .font(.custom("PressStart2P-Regular", size: 12))
+                                    .font(.custom("Press Start 2P", size: 12))
                                     .padding(12)
                                     .background(Color.gray)
                                     .foregroundColor(.white)
@@ -165,7 +168,7 @@ struct SnakeGameView: View {
                 }
             }
             .gesture(
-                DragGesture(minimumDistance: 20)
+                DragGesture(minimumDistance: 10)
                     .onChanged { value in
                         let dx = value.translation.width
                         let dy = value.translation.height
@@ -176,7 +179,43 @@ struct SnakeGameView: View {
                             game.changeDirection(dy > 0 ? Direction.down : Direction.up)
                         }
                     }
+                    .onEnded { _ in
+                        // Clear any pending gesture state
+                    }
             )
+            // Sheet pro zadání jména - pouze pro TOP 10
+            .sheet(isPresented: $showingNameInput) {
+                NameInputView(score: game.score)
+            }
+        }
+        .onChange(of: game.gameState) { _, newState in
+            if newState == .gameOver {
+                checkIfInTop10()
+            }
+        }
+    }
+    
+    // Funkce pro kontrolu, zda je skóre v TOP 10
+    private func checkIfInTop10() {
+        guard game.score > 0 else { return } // Don't check for zero scores
+        
+        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
+        fetchRequest.fetchLimit = 10
+        
+        do {
+            let topScores = try viewContext.fetch(fetchRequest)
+            
+            // Pokud je méně než 10 skóre nebo je aktuální skóre vyšší než 10. nejlepší
+            if topScores.count < 10 || game.score > (topScores.last?.score ?? 0) {
+                print("Score \(game.score) is in TOP 10! Showing NameInputView")
+                showingNameInput = true
+            } else {
+                print("Score \(game.score) is NOT in TOP 10. Not showing NameInputView")
+            }
+        } catch {
+            print("Error fetching top scores: \(error)")
+            // Don't show name input if there's an error
         }
     }
 }

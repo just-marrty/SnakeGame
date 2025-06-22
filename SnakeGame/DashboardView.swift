@@ -8,6 +8,7 @@ extension Notification.Name {
 struct DashboardView: View {
     @State private var showingGame = false
     @State private var showingSettings = false
+    @State private var showingLeaderboard = false
     @AppStorage("SnakeHighScore") private var highScore = 0
     @StateObject private var settings = SettingsManager()
     @StateObject private var audioManager = AudioManager.shared
@@ -35,6 +36,25 @@ struct DashboardView: View {
                     Spacer()
 
                     VStack(spacing: 20) {
+                        Button(action: {
+                            audioManager.playEffect("forward") {
+                                showingLeaderboard = true
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "list.number")
+                                Text("LEADERBOARD")
+                            }
+                            .font(.custom("PressStart2P-Regular", size: 12))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 0)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                        }
+                        
                         Button(action: {
                             audioManager.stopBackgroundMusic()
                             audioManager.playEffect("game-start") {
@@ -126,6 +146,9 @@ struct DashboardView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .highScoreReset)) { _ in
             // highScore se aktualizuje automaticky díky @AppStorage
+        }
+        .sheet(isPresented: $showingLeaderboard) {
+            LeaderboardView()
         }
     }
 }

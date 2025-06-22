@@ -53,7 +53,8 @@ class SnakeGame: ObservableObject {
 
     private func scheduleTimer() {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: gameSpeed, repeats: true) { _ in
+        let safeGameSpeed = max(gameSpeed, 0.01) // Ensure minimum safe interval
+        timer = Timer.scheduledTimer(withTimeInterval: safeGameSpeed, repeats: true) { _ in
             self.elapsedTime += self.gameSpeed
             self.moveSnake()
             self.checkForSpeedIncrease()
@@ -63,7 +64,7 @@ class SnakeGame: ObservableObject {
     private func checkForSpeedIncrease() {
         if elapsedTime >= nextSpeedIncreaseTime,
            currentSpeedStep < speedSteps.count {
-            gameSpeed = speedSteps[currentSpeedStep]
+            gameSpeed = max(speedSteps[currentSpeedStep], 0.01) // Ensure minimum safe speed
             currentSpeedStep += 1
             nextSpeedIncreaseTime += currentSpeedStep == 1 ? 40 : 50
             scheduleTimer()
@@ -84,12 +85,13 @@ class SnakeGame: ObservableObject {
     }
 
     func resetGame() {
+        elapsedTime = 0
         snake = [Position(x: 10, y: 10)]
         direction = .right
         score = 0
+        foods = []
         generateFood()
         gameState = .playing
-        elapsedTime = 0
         gameSpeed = 0.2
         currentSpeedStep = 0
         nextSpeedIncreaseTime = 20

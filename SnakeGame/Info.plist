@@ -6,9 +6,5 @@
 	<array>
 		<string>PressStart2P-Regular.ttf</string>
 	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict/>
-	</array>
 </dict>
 </plist>
