@@ -9,6 +9,7 @@ struct DashboardView: View {
     @State private var showingGame = false
     @State private var showingSettings = false
     @State private var showingLeaderboard = false
+    @State private var showingFAQ = false
     @AppStorage("SnakeHighScore") private var highScore = 0
     @StateObject private var settings = SettingsManager()
     @StateObject private var audioManager = AudioManager.shared
@@ -90,6 +91,24 @@ struct DashboardView: View {
                                     .stroke(Color.white, lineWidth: 2)
                             )
                         }
+                        Button(action: {
+                            audioManager.playEffect("forward") {
+                                showingFAQ = true
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "questionmark.circle")
+                                Text("FAQ")
+                            }
+                            .font(.custom("PressStart2P-Regular", size: 12))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 0)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                        }
                     }
                     .padding(.horizontal, 40)
 
@@ -149,6 +168,9 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $showingLeaderboard) {
             LeaderboardView()
+        }
+        .sheet(isPresented: $showingFAQ) {
+            FAQView()
         }
     }
 }

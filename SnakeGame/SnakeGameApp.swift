@@ -9,14 +9,15 @@ import SwiftUI
 
 @main
 struct SnakeGameApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate // portrain mode only
     let persistenceController = PersistenceController.shared
 
     init() {
         // Výpis všech dostupných fontů pro debug
         for family in UIFont.familyNames.sorted() {
-            print("Family: \(family)") // ✅ zobrazí název rodiny fontu
+            print("Family: \(family)") // zobrazí název rodiny fontu
             for fontName in UIFont.fontNames(forFamilyName: family) {
-                print("   - \(fontName)") // ✅ vypíše skutečný název fontu
+                print("   - \(fontName)") // vypíše skutečný název fontu
             }
         }
     }

@@ -88,40 +88,52 @@ struct SnakeGameView: View {
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-
-                    HStack(spacing: 20) {
-                        Button(action: {
-                            if game.gameState == .playing {
-                                game.pauseGame()
-                            } else if game.gameState == .paused {
-                                game.resumeGame()
-                            }
-                        }) {
-                            Image(systemName: game.gameState == .playing ? "pause.fill" : "play.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 24, height: 24)
-                                .padding(12)
-                                .foregroundColor(.black)
-                                .background(Color.green)
-                                .clipShape(RoundedRectangle(cornerRadius: 0))
-                        }
-                        .disabled(game.gameState == .gameOver)
-
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "xmark")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 24, height: 24)
-                                .padding(12)
-                                .foregroundColor(.white)
-                                .background(Color.red)
-                                .clipShape(RoundedRectangle(cornerRadius: 0))
-                        }
-                    }
+                    Spacer().frame(height: 70)
                 }
+
+                // Spodní panel s tlačítky - absolutně u spodního okraje
+                VStack {
+                    Spacer()
+                    ZStack {
+                        Color.black.opacity(0.5)
+                            .ignoresSafeArea(edges: .bottom)
+                        HStack(spacing: 20) {
+                            Button(action: {
+                                if game.gameState == .playing {
+                                    game.pauseGame()
+                                } else if game.gameState == .paused {
+                                    game.resumeGame()
+                                }
+                            }) {
+                                Image(systemName: game.gameState == .playing ? "pause.fill" : "play.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 24, height: 24)
+                                    .padding(12)
+                                    .foregroundColor(.black)
+                                    .background(Color.green)
+                                    .clipShape(RoundedRectangle(cornerRadius: 0))
+                            }
+                            .disabled(game.gameState == .gameOver)
+
+                            Button(action: {
+                                dismiss()
+                            }) {
+                                Image(systemName: "xmark")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 24, height: 24)
+                                    .padding(12)
+                                    .foregroundColor(.white)
+                                    .background(Color.red)
+                                    .clipShape(RoundedRectangle(cornerRadius: 0))
+                            }
+                        }
+                        .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? geometry.safeAreaInsets.bottom : 20)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 70, maxHeight: 103)
+                }
+                .ignoresSafeArea(edges: .bottom)
 
                 if game.gameState == .gameOver {
                     Color.black.opacity(0.9)

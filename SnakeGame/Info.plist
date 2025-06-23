@@ -6,5 +6,9 @@
 	<array>
 		<string>PressStart2P-Regular.ttf</string>
 	</array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
 </dict>
 </plist>
