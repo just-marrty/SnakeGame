@@ -14,10 +14,12 @@ struct FAQView: View {
         FAQItem(question: "How do I control the snake?", answer: "Swipe in the direction you want the snake to move: up, down, left, or right."),
         FAQItem(question: "What happens if the snake hits a wall?", answer: "The game ends immediately. Be careful and stay within the grid!"),
         FAQItem(question: "Can I pause the game?", answer: "Yes. Tap the pause button at the bottom of the screen to pause or resume the game."),
-        FAQItem(question: "Does the game save my high score?", answer: "Yes. Your highest score is saved locally on your device."),
-        FAQItem(question: "Is internet connection required to play?", answer: "No. The game works completely offline."),
+        FAQItem(question: "Does the game save my high score?", answer: "Yes. As long as you're signed into your Apple account, your high score will be saved even if you switch devices. Just make sure iCloud is enabled for the game."),
+        FAQItem(question: "Is internet connection required to play?", answer: "The game works without an internet connection, but some features like saving your progress and high scores require online access."),
         FAQItem(question: "Can I play with a keyboard or game controller?", answer: "No. The game is designed for touch input only."),
-        FAQItem(question: "Will the snake wrap around the screen?", answer: "No. If the snake hits a wall, the game is over.")
+        
+        FAQItem(question: "Can I customize the game's appearance?", answer: "Not yet. The game's look is fixed to maintain its retro pixel-art style."
+        )
     ]
 
     var body: some View {
@@ -28,7 +30,7 @@ struct FAQView: View {
                 HStack {
                     Text("FAQ")
                         .font(.custom("Press Start 2P", size: 18))
-                        .foregroundColor(.green)
+                        .foregroundColor(.snakeGreen)
                     Spacer()
                     Button(action: {
                         dismiss()
@@ -64,7 +66,7 @@ struct FAQView: View {
                                 HStack(alignment: .top) {
                                     Text(item.question)
                                         .font(.custom("Press Start 2P", size: 11))
-                                        .foregroundColor(.green)
+                                        .foregroundColor(.snakeGreen)
                                         .multilineTextAlignment(.leading)
                                         .fixedSize(horizontal: false, vertical: true)
                                         .lineSpacing(6) // větší mezera mezi řádky otázky
@@ -74,7 +76,7 @@ struct FAQView: View {
                             .padding()
                             .background(Color.gray.opacity(0.3)) // šedivý background
                             .cornerRadius(0)
-                            .tint(.green)
+                            .tint(.snakeGreen)
                         }
                     }
                     .padding(.horizontal, 20)

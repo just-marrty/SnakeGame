@@ -16,7 +16,7 @@ struct SettingsView: View {
                 VStack(spacing: 30) {
                     Text("SETTINGS")
                         .font(.custom("PressStart2P-Regular", size: 18))
-                        .foregroundColor(.green)
+                        .foregroundColor(.snakeGreen)
                         .padding(.top, 20)
 
                     VStack(spacing: 20) {
@@ -64,7 +64,7 @@ struct SettingsView: View {
                     }
                 }
                 .font(.custom("PressStart2P-Regular", size: 10))
-                .foregroundColor(.green)
+                .foregroundColor(.snakeGreen)
             )
         }
     }
@@ -73,7 +73,7 @@ struct SettingsView: View {
     private func retroToggle(label: String, icon: String, isOn: Binding<Bool>, onToggle: @escaping () -> Void) -> some View {
         HStack {
             Image(systemName: icon)
-                .foregroundColor(.green)
+                .foregroundColor(.snakeGreen)
                 .font(.title2)
 
             Text(label)
@@ -91,7 +91,7 @@ struct SettingsView: View {
                     .foregroundColor(.black)
                     .padding(.vertical, 6)
                     .padding(.horizontal, 14)
-                    .background(isOn.wrappedValue ? Color.green : Color.gray)
+                    .background(isOn.wrappedValue ? Color.snakeGreen : Color.gray)
                     .overlay(
                         RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.white, lineWidth: 1)
@@ -111,5 +111,5 @@ struct SettingsView: View {
 }
 
 #Preview {
-    DashboardView()
+    SettingsView(settings: SettingsManager())
 }

@@ -16,7 +16,7 @@ struct NameInputView: View {
                 VStack(spacing: 30) {
                     Text("YOU'RE IN TOP 10!")
                         .font(.custom("Press Start 2P", size: 16))
-                        .foregroundColor(.green)
+                        .foregroundColor(.snakeGreen)
                         .padding(.top, 20)
                     
                     Text("Score: \(score)")
@@ -61,7 +61,7 @@ struct NameInputView: View {
                         .font(.custom("Press Start 2P", size: 10))
                         .foregroundColor(.black)
                         .padding()
-                        .background(Color.green)
+                        .background(Color.snakeGreen)
                         .disabled(playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                     .padding(.bottom, 20)

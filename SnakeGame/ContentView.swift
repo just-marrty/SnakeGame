@@ -37,7 +37,7 @@ struct SnakeGameView: View {
                                 .foregroundColor(.green.opacity(0.6))
                             Text("\(game.score)")
                                 .font(.custom("Press Start 2P", size: 18))
-                                .foregroundColor(.green)
+                                .foregroundColor(Color.snakeGreen)
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
@@ -62,7 +62,7 @@ struct SnakeGameView: View {
 
                         ZStack {
                             RoundedRectangle(cornerRadius: 0)
-                                .stroke(Color.green, lineWidth: 2)
+                                .stroke(Color.snakeGreen, lineWidth: 3)
                                 .frame(width: playableWidth, height: playableHeight)
 
                             VStack(spacing: 0) {
@@ -74,7 +74,7 @@ struct SnakeGameView: View {
                                                 if game.foods.contains(position) {
                                                     Rectangle().fill(Color.red)
                                                 } else if game.snake.first == position {
-                                                    Rectangle().fill(Color.green)
+                                                    Rectangle().fill(Color.snakeGreen)
                                                 } else if game.snake.contains(position) {
                                                     Rectangle().fill(Color.green.opacity(0.5))
                                                 }
@@ -105,13 +105,13 @@ struct SnakeGameView: View {
                                     game.resumeGame()
                                 }
                             }) {
-                                Image(systemName: game.gameState == .playing ? "pause.fill" : "play.fill")
+                                Image(game.gameState == .playing ? "pause" : "play")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 24, height: 24)
                                     .padding(12)
                                     .foregroundColor(.black)
-                                    .background(Color.green)
+                                    .background(Color.snakeGreen)
                                     .clipShape(RoundedRectangle(cornerRadius: 0))
                             }
                             .disabled(game.gameState == .gameOver)
@@ -119,7 +119,7 @@ struct SnakeGameView: View {
                             Button(action: {
                                 dismiss()
                             }) {
-                                Image(systemName: "xmark")
+                                Image("close")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 24, height: 24)
@@ -156,7 +156,7 @@ struct SnakeGameView: View {
                                 Text("PLAY AGAIN")
                                     .font(.custom("Press Start 2P", size: 12))
                                     .padding(12)
-                                    .background(Color.green)
+                                    .background(Color.snakeGreen)
                                     .foregroundColor(.black)
                             }
 

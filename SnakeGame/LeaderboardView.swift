@@ -19,7 +19,7 @@ struct LeaderboardView: View {
                 VStack(spacing: 16) {
                     Text("TOP 10 LEADERBOARD")
                         .font(.custom("Press Start 2P", size: 18))
-                        .foregroundColor(.green)
+                        .foregroundColor(.snakeGreen)
                         .padding(.top)
 
                     List {
@@ -42,7 +42,7 @@ struct LeaderboardView: View {
                                     // Skóre
                                     Text("\(score.score)")
                                         .font(.custom("Press Start 2P", size: 14))
-                                        .foregroundColor(.green)
+                                        .foregroundColor(.snakeGreen)
                                 }
                                 
                                 // Datum na druhém řádku

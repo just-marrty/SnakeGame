@@ -42,18 +42,15 @@ struct DashboardView: View {
                                 showingLeaderboard = true
                             }
                         }) {
-                            HStack {
-                                Image(systemName: "list.number")
-                                Text("LEADERBOARD")
-                            }
-                            .font(.custom("PressStart2P-Regular", size: 12))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 0)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
+                            Text("LEADERBOARD")
+                                .font(.custom("PressStart2P-Regular", size: 12))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 0)
+                                        .stroke(Color.white, lineWidth: 2)
+                                )
                         }
                         
                         Button(action: {
@@ -62,53 +59,50 @@ struct DashboardView: View {
                                 showingGame = true
                             }
                         }) {
-                            HStack {
-                                Image(systemName: "play.fill")
-                                Text("START GAME")
-                            }
-                            .font(.custom("PressStart2P-Regular", size: 12))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green)
+                            Text("START GAME")
+                                .font(.custom("PressStart2P-Regular", size: 12))
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.snakeGreen)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 0)
+                                        .stroke(Color.snakeGreen, lineWidth: 2)
+                                )
                         }
-
+                        
                         Button(action: {
                             audioManager.playEffect("forward") {
                                 showingSettings = true
                             }
                         }) {
-                            HStack {
-                                Image(systemName: "gearshape.fill")
-                                Text("SETTINGS")
-                            }
-                            .font(.custom("PressStart2P-Regular", size: 12))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 0)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
+                            Text("SETTINGS")
+                                .font(.custom("PressStart2P-Regular", size: 12))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 0)
+                                        .stroke(Color.white, lineWidth: 2)
+                                )
                         }
+                        
                         Button(action: {
                             audioManager.playEffect("forward") {
                                 showingFAQ = true
                             }
                         }) {
-                            HStack {
-                                Image(systemName: "questionmark.circle")
-                                Text("FAQ")
-                            }
-                            .font(.custom("PressStart2P-Regular", size: 12))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 0)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
+                            Text("FAQ")
+                                .font(.custom("PressStart2P-Regular", size: 12))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 0)
+                                        .stroke(Color.white, lineWidth: 2)
+                                )
                         }
+
                     }
                     .padding(.horizontal, 40)
 
@@ -119,14 +113,14 @@ struct DashboardView: View {
 
                         Text("\(highScore)")
                             .font(.custom("PressStart2P-Regular", size: 18))
-                            .foregroundColor(.green)
+                            .foregroundColor(Color.snakeGreen)
                     }
                     .padding(.top, 20)
 
                     Spacer()
 
                     Text("Swipe to control the snake")
-                        .font(.custom("PressStart2P-Regular", size: 8))
+                        .font(.custom("PressStart2P-Regular", size: 10))
                         .foregroundColor(.white.opacity(0.5))
                         .padding(.bottom, 20)
                 }

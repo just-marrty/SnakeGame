@@ -22,7 +22,11 @@ class SnakeGame: ObservableObject {
     static let columns = 20
     static let rows = 35
 
-    @Published var snake: [Position] = [Position(x: 10, y: 10)]
+    @Published var snake: [Position] = [
+        Position(x: 10, y: 10), // hlava
+        Position(x: 9, y: 10),  // tělo
+        Position(x: 8, y: 10)   // ocas
+    ]
     @Published var foods: [Position] = []
     @Published var direction: Direction = .right
     @Published var gameState: GameState = .playing
@@ -86,7 +90,11 @@ class SnakeGame: ObservableObject {
 
     func resetGame() {
         elapsedTime = 0
-        snake = [Position(x: 10, y: 10)]
+        snake = [
+            Position(x: 10, y: 10), // hlava
+            Position(x: 9, y: 10),  // tělo
+            Position(x: 8, y: 10)   // ocas
+        ]
         direction = .right
         score = 0
         foods = []
