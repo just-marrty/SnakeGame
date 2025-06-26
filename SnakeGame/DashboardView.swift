@@ -16,6 +16,7 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationView {
+            
             ZStack {
                 Color(red: 50/255, green: 35/255, blue: 20/255).ignoresSafeArea()
 
@@ -119,10 +120,29 @@ struct DashboardView: View {
 
                     Spacer()
 
-                    Text("Swipe to control the snake")
-                        .font(.custom("PressStart2P-Regular", size: 10))
-                        .foregroundColor(.white.opacity(0.5))
-                        .padding(.bottom, 20)
+                    VStack(spacing: 8) {
+                        Text("Snake Game version 1.0")
+                            .font(.custom("PressStart2P-Regular", size: 10))
+                            .foregroundColor(.white.opacity(0.5))
+
+                        (
+                            Text("by ")
+                                .font(.custom("PressStart2P-Regular", size: 10))
+                                .foregroundColor(.white.opacity(0.5))
+                            +
+                            Text("just_marrty")
+                                .font(.custom("PressStart2P-Regular", size: 10))
+                                .foregroundColor(.white.opacity(0.5))
+                                .underline()
+                        )
+                        .onTapGesture {
+                            if let url = URL(string: "https://www.moje-webovka.cz/") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                    }
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 20)
                 }
             }
         }

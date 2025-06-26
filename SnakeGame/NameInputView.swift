@@ -7,6 +7,7 @@ struct NameInputView: View {
     let score: Int
     @State private var playerName = ""
     @State private var showingAlert = false
+    @FocusState private var nameFieldFocused: Bool
     
     var body: some View {
         NavigationView {
@@ -35,6 +36,7 @@ struct NameInputView: View {
                             .background(Color.gray.opacity(0.3))
                             .cornerRadius(6)
                             .textFieldStyle(PlainTextFieldStyle())
+                            .focused($nameFieldFocused)
                             .onSubmit {
                                 saveScore()
                             }
@@ -69,6 +71,9 @@ struct NameInputView: View {
             }
             .navigationBarHidden(true)
         }
+        .task {
+            nameFieldFocused = true  // okamžitá aktivace klávesnice
+        }
         .alert("Invalid Name", isPresented: $showingAlert) {
             Button("OK") { }
         } message: {
@@ -84,23 +89,19 @@ struct NameInputView: View {
             return
         }
         
-        // Limit name length to prevent issues
         let finalName = String(trimmedName.prefix(20))
         
-        // Vytvoř nový HighScore
         let newScore = HighScore(context: viewContext)
         newScore.id = UUID()
         newScore.playerName = finalName
-        newScore.score = Int16(max(score, 0)) // Ensure positive score
+        newScore.score = Int16(max(score, 0))
         newScore.date = Date()
         
-        // Ulož do Core Data
         do {
             try viewContext.save()
             dismiss()
         } catch {
             print("Error saving score: \(error)")
-            // Could show an error alert here if needed
         }
     }
 }

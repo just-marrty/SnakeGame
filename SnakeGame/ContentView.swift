@@ -2,8 +2,6 @@
 //  ContentView.swift
 //  SnakeGame
 //
-//  Created by Martin Hrbáček on 19.06.2025.
-//
 
 import SwiftUI
 import CoreData
@@ -13,7 +11,9 @@ struct SnakeGameView: View {
     @StateObject private var game: SnakeGame
     @StateObject private var audioManager = AudioManager.shared
     @State private var showingNameInput = false
+    @State private var showingExitConfirmation = false
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
 
     init() {
         let settingsManager = SettingsManager()
@@ -21,14 +21,13 @@ struct SnakeGameView: View {
         _game = StateObject(wrappedValue: SnakeGame(settings: settingsManager))
     }
 
-    @Environment(\.dismiss) private var dismiss
-
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 Color(red: 50/255, green: 35/255, blue: 20/255)
                     .ignoresSafeArea()
 
+                // Hra
                 VStack(spacing: 0) {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
@@ -52,7 +51,7 @@ struct SnakeGameView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
                     .padding(.bottom, 10)
-                    .background(Color.black.opacity(0.5))
+                    .background(Color.black.opacity(0.3))
 
                     GeometryReader { geo in
                         let width = max(geo.size.width - 40, 1)
@@ -61,16 +60,19 @@ struct SnakeGameView: View {
                         let playableHeight = cellSize * CGFloat(SnakeGame.rows)
 
                         ZStack {
-                            RoundedRectangle(cornerRadius: 0)
-                                .stroke(Color.snakeGreen, lineWidth: 3)
-                                .frame(width: playableWidth, height: playableHeight)
-
+                            Color.black.opacity(0.3).ignoresSafeArea(edges: .bottom)
                             VStack(spacing: 0) {
                                 ForEach(0..<SnakeGame.rows, id: \.self) { y in
                                     HStack(spacing: 0) {
                                         ForEach(0..<SnakeGame.columns, id: \.self) { x in
+                                            let lightBrown = Color(red: 70/255, green: 50/255, blue: 30/255)
+                                            let darkBrown = Color(red: 75/255, green: 55/255, blue: 33/255)
                                             let position = Position(x: x, y: y)
+
                                             ZStack {
+                                                Rectangle()
+                                                    .fill((x + y) % 2 == 0 ? lightBrown : darkBrown)
+
                                                 if game.foods.contains(position) {
                                                     Rectangle().fill(Color.red)
                                                 } else if game.snake.first == position {
@@ -85,20 +87,28 @@ struct SnakeGameView: View {
                                 }
                             }
                             .frame(width: playableWidth, height: playableHeight)
+
+                            Rectangle()
+                                .stroke(Color.snakeGreen, lineWidth: 4)
+                                .frame(width: playableWidth, height: playableHeight)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    Spacer().frame(height: 70)
+
+                    Spacer().frame(height: 69)
                 }
 
-                // Spodní panel s tlačítky - absolutně u spodního okraje
+                // Spodní panel
                 VStack {
                     Spacer()
                     ZStack {
-                        Color.black.opacity(0.5)
+                        Color.black.opacity(0.3)
                             .ignoresSafeArea(edges: .bottom)
                         HStack(spacing: 20) {
                             Button(action: {
+                                if settings.soundEnabled {
+                                        audioManager.playEffect("check")
+                                    }
                                 if game.gameState == .playing {
                                     game.pauseGame()
                                 } else if game.gameState == .paused {
@@ -117,7 +127,11 @@ struct SnakeGameView: View {
                             .disabled(game.gameState == .gameOver)
 
                             Button(action: {
-                                dismiss()
+                                if settings.soundEnabled {
+                                        audioManager.playEffect("backward")
+                                    }
+                                game.pauseGame()
+                                showingExitConfirmation = true
                             }) {
                                 Image("close")
                                     .resizable()
@@ -135,9 +149,9 @@ struct SnakeGameView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
 
+                // Game Over obrazovka
                 if game.gameState == .gameOver {
-                    Color.black.opacity(0.9)
-                        .ignoresSafeArea()
+                    Color.black.opacity(0.9).ignoresSafeArea()
 
                     VStack(spacing: 20) {
                         Text("GAME OVER")
@@ -178,24 +192,79 @@ struct SnakeGameView: View {
                         }
                     }
                 }
+
+                // Exit modal
+                if showingExitConfirmation {
+                    Color.black.opacity(0.8)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                        .zIndex(2)
+
+                    VStack(spacing: 20) {
+                        Text("Are you sure?")
+                            .font(.custom("Press Start 2P", size: 16))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+
+                        Text("Your game progress will be lost.")
+                            .font(.custom("Press Start 2P", size: 10))
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+
+                        HStack(spacing: 20) {
+                            Button(action: {if settings.soundEnabled {
+                                audioManager.playEffect("backward")
+                            }
+                                dismiss()
+                            }) {
+                                Text("EXIT")
+                                    .font(.custom("Press Start 2P", size: 10))
+                                    .padding(12)
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.red)
+                                    .foregroundColor(.white)
+                            }
+
+                            Button(action: {
+                                withAnimation {
+                                    if settings.soundEnabled {
+                                            audioManager.playEffect("forward")
+                                        }
+                                    showingExitConfirmation = false
+                                }
+                            }) {
+                                Text("CONTINUE")
+                                    .font(.custom("Press Start 2P", size: 10))
+                                    .padding(12)
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.snakeGreen)
+                                    .foregroundColor(.black)
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Color.black)
+                    .cornerRadius(10)
+                    .padding(.horizontal, 40)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(3)
+                }
             }
+
+            // Gesture
             .gesture(
                 DragGesture(minimumDistance: 10)
                     .onChanged { value in
                         let dx = value.translation.width
                         let dy = value.translation.height
-
                         if abs(dx) > abs(dy) {
-                            game.changeDirection(dx > 0 ? Direction.right : Direction.left)
+                            game.changeDirection(dx > 0 ? .right : .left)
                         } else {
-                            game.changeDirection(dy > 0 ? Direction.down : Direction.up)
+                            game.changeDirection(dy > 0 ? .down : .up)
                         }
                     }
-                    .onEnded { _ in
-                        // Clear any pending gesture state
-                    }
             )
-            // Sheet pro zadání jména - pouze pro TOP 10
+
             .sheet(isPresented: $showingNameInput) {
                 NameInputView(score: game.score)
             }
@@ -206,28 +275,20 @@ struct SnakeGameView: View {
             }
         }
     }
-    
-    // Funkce pro kontrolu, zda je skóre v TOP 10
+
     private func checkIfInTop10() {
-        guard game.score > 0 else { return } // Don't check for zero scores
-        
+        guard game.score > 0 else { return }
         let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
         fetchRequest.fetchLimit = 10
-        
+
         do {
             let topScores = try viewContext.fetch(fetchRequest)
-            
-            // Pokud je méně než 10 skóre nebo je aktuální skóre vyšší než 10. nejlepší
             if topScores.count < 10 || game.score > (topScores.last?.score ?? 0) {
-                print("Score \(game.score) is in TOP 10! Showing NameInputView")
                 showingNameInput = true
-            } else {
-                print("Score \(game.score) is NOT in TOP 10. Not showing NameInputView")
             }
         } catch {
             print("Error fetching top scores: \(error)")
-            // Don't show name input if there's an error
         }
     }
 }
