@@ -1,9 +1,11 @@
 import SwiftUI
 import AVFoundation
 import UIKit
+import CoreData
 
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject var settings: SettingsManager
     @AppStorage("SnakeHighScore") private var storedHighScore = 0
     @StateObject private var audioManager = AudioManager.shared
@@ -35,24 +37,6 @@ struct SettingsView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-
-                    Spacer()
-
-                    Button(action: {
-                        audioManager.playEffect("reset") {
-                            storedHighScore = 0
-                            NotificationCenter.default.post(name: .highScoreReset, object: nil)
-                        }
-                    }) {
-                        Text("RESET HIGH SCORE")
-                            .font(.custom("PressStart2P-Regular", size: 12))
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.red)
-                            .cornerRadius(0)
-                            .padding(.horizontal, 20)
-                    }
 
                     Spacer()
                 }

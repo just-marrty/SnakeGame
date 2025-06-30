@@ -24,9 +24,8 @@ struct SnakeGameApp: App {
 
     var body: some Scene {
         WindowGroup {
-            DashboardView()
+            LoadingView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }
-

@@ -5,6 +5,7 @@
 
 import SwiftUI
 import CoreData
+import CloudKit
 
 struct SnakeGameView: View {
     @StateObject private var settings = SettingsManager()
@@ -12,6 +13,9 @@ struct SnakeGameView: View {
     @StateObject private var audioManager = AudioManager.shared
     @State private var showingNameInput = false
     @State private var showingExitConfirmation = false
+    @State private var showHighScoreAlert = false
+    @State private var newHighScoreValue: Int?
+    @State private var playerEnteredTop10 = false
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
 
@@ -27,7 +31,7 @@ struct SnakeGameView: View {
                 Color(red: 50/255, green: 35/255, blue: 20/255)
                     .ignoresSafeArea()
 
-                // Hra
+                // HRA
                 VStack(spacing: 0) {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
@@ -98,17 +102,14 @@ struct SnakeGameView: View {
                     Spacer().frame(height: 69)
                 }
 
-                // Spodní panel
+                // BOTTOM BAR
                 VStack {
                     Spacer()
                     ZStack {
-                        Color.black.opacity(0.3)
-                            .ignoresSafeArea(edges: .bottom)
+                        Color.black.opacity(0.3).ignoresSafeArea(edges: .bottom)
                         HStack(spacing: 20) {
                             Button(action: {
-                                if settings.soundEnabled {
-                                        audioManager.playEffect("check")
-                                    }
+                                if settings.soundEnabled { audioManager.playEffect("check") }
                                 if game.gameState == .playing {
                                     game.pauseGame()
                                 } else if game.gameState == .paused {
@@ -120,16 +121,12 @@ struct SnakeGameView: View {
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 24, height: 24)
                                     .padding(12)
-                                    .foregroundColor(.black)
                                     .background(Color.snakeGreen)
-                                    .clipShape(RoundedRectangle(cornerRadius: 0))
                             }
                             .disabled(game.gameState == .gameOver)
 
                             Button(action: {
-                                if settings.soundEnabled {
-                                        audioManager.playEffect("backward")
-                                    }
+                                if settings.soundEnabled { audioManager.playEffect("backward") }
                                 game.pauseGame()
                                 showingExitConfirmation = true
                             }) {
@@ -138,9 +135,7 @@ struct SnakeGameView: View {
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 24, height: 24)
                                     .padding(12)
-                                    .foregroundColor(.white)
                                     .background(Color.red)
-                                    .clipShape(RoundedRectangle(cornerRadius: 0))
                             }
                         }
                         .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? geometry.safeAreaInsets.bottom : 20)
@@ -149,19 +144,16 @@ struct SnakeGameView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
 
-                // Game Over obrazovka
+                // GAME OVER SCREEN
                 if game.gameState == .gameOver {
                     Color.black.opacity(0.9).ignoresSafeArea()
-
                     VStack(spacing: 20) {
                         Text("GAME OVER")
                             .font(.custom("Press Start 2P", size: 20))
                             .foregroundColor(.red)
-
                         Text("Final Score: \(game.score)")
                             .font(.custom("Press Start 2P", size: 14))
                             .foregroundColor(.white)
-
                         VStack(spacing: 12) {
                             Button(action: {
                                 audioManager.playEffect("game-start")
@@ -173,7 +165,6 @@ struct SnakeGameView: View {
                                     .background(Color.snakeGreen)
                                     .foregroundColor(.black)
                             }
-
                             Button(action: {
                                 if settings.soundEnabled {
                                     audioManager.playEffect("backward")
@@ -193,28 +184,21 @@ struct SnakeGameView: View {
                     }
                 }
 
-                // Exit modal
+                // EXIT MODAL
                 if showingExitConfirmation {
-                    Color.black.opacity(0.8)
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-                        .zIndex(2)
-
+                    Color.black.opacity(0.8).ignoresSafeArea().zIndex(2)
                     VStack(spacing: 20) {
                         Text("Are you sure?")
                             .font(.custom("Press Start 2P", size: 16))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
-
                         Text("Your game progress will be lost.")
                             .font(.custom("Press Start 2P", size: 10))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
-
                         HStack(spacing: 20) {
-                            Button(action: {if settings.soundEnabled {
-                                audioManager.playEffect("backward")
-                            }
+                            Button(action: {
+                                if settings.soundEnabled { audioManager.playEffect("backward") }
                                 dismiss()
                             }) {
                                 Text("EXIT")
@@ -224,12 +208,9 @@ struct SnakeGameView: View {
                                     .background(Color.red)
                                     .foregroundColor(.white)
                             }
-
                             Button(action: {
                                 withAnimation {
-                                    if settings.soundEnabled {
-                                            audioManager.playEffect("forward")
-                                        }
+                                    if settings.soundEnabled { audioManager.playEffect("forward") }
                                     showingExitConfirmation = false
                                 }
                             }) {
@@ -246,12 +227,59 @@ struct SnakeGameView: View {
                     .background(Color.black)
                     .cornerRadius(10)
                     .padding(.horizontal, 40)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(3)
+                }
+
+                // FULLSCREEN MODAL ALERT
+                // FULLSCREEN MODAL ALERT
+                if showHighScoreAlert, let score = newHighScoreValue {
+                    Color.black.opacity(0.95)
+                        .ignoresSafeArea()
+                        .zIndex(4)
+
+                    VStack(spacing: 24) {
+                        Text("NEW HIGH SCORE!")
+                            .font(.custom("Press Start 2P", size: 20))
+                            .foregroundColor(.yellow)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
+
+                        Text(
+                            playerEnteredTop10 ?
+                            "You scored \(score) points\nand entered the TOP 10!" :
+                            "You scored \(score) points\nand beat your previous best!"
+                        )
+                        .font(.custom("Press Start 2P", size: 12))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+
+                        Button(action: {
+                            withAnimation {
+                                if settings.soundEnabled {
+                                    audioManager.playEffect("forward")
+                                }
+                                showHighScoreAlert = false
+                            }
+                        }) {
+                            Text("OK")
+                                .font(.custom("Press Start 2P", size: 14))
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 32)
+                                .background(Color.snakeGreen)
+                                .foregroundColor(.black)
+                                .cornerRadius(0)
+                        }
+                    }
+                    .padding()
+                    .cornerRadius(12)
+                    .padding(.horizontal, 40)
+                    .transition(.scale)
+                    .zIndex(5)
                 }
             }
 
-            // Gesture
+            // GESTURE
             .gesture(
                 DragGesture(minimumDistance: 10)
                     .onChanged { value in
@@ -264,7 +292,6 @@ struct SnakeGameView: View {
                         }
                     }
             )
-
             .sheet(isPresented: $showingNameInput) {
                 NameInputView(score: game.score)
             }
@@ -278,17 +305,83 @@ struct SnakeGameView: View {
 
     private func checkIfInTop10() {
         guard game.score > 0 else { return }
+
         let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
         fetchRequest.fetchLimit = 10
 
         do {
             let topScores = try viewContext.fetch(fetchRequest)
+
+            if !settings.playerName.isEmpty {
+                if let existing = topScores.first(where: { $0.playerName == settings.playerName }) {
+                    if game.score > existing.score {
+                        newHighScoreValue = game.score
+                        showHighScoreAlert = true
+
+                        // Nastavení, zda hráč JE v top10
+                        playerEnteredTop10 = topScores.contains(where: { $0.playerName == settings.playerName })
+
+                        updateScore(for: settings.playerName, newScore: game.score)
+                    }
+                    return
+                }
+
+                // Hráč zatím v top10 není → kontroluj, zda se kvalifikuje nově
+                if topScores.count < 10 || game.score > (topScores.last?.score ?? 0) {
+                    newHighScoreValue = game.score
+                    playerEnteredTop10 = true
+                    showHighScoreAlert = true
+
+                    updateScore(for: settings.playerName, newScore: game.score)
+                }
+                return
+            }
+
+            // Hráč ještě nezadal jméno
             if topScores.count < 10 || game.score > (topScores.last?.score ?? 0) {
                 showingNameInput = true
             }
+
         } catch {
-            print("Error fetching top scores: \(error)")
+            print("Chyba při načítání top10: \(error)")
+        }
+    }
+
+    private func updateScore(for name: String, newScore scoreValue: Int) {
+        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "playerName == %@", name)
+
+        do {
+            let results = try viewContext.fetch(fetchRequest)
+
+            if let existing = results.first {
+                if scoreValue > existing.score {
+                    existing.score = Int16(scoreValue)
+                    existing.date = Date()
+                }
+            } else {
+                let newHighScore = HighScore(context: viewContext)
+                newHighScore.id = UUID()
+                newHighScore.playerName = name
+                newHighScore.score = Int16(scoreValue)
+                newHighScore.date = Date()
+            }
+
+            try viewContext.save()
+
+            // ✅ Uložit do CloudKit (pouze touto metodou)
+            CloudKitManager.saveHighScore(playerName: name, score: scoreValue) { result in
+                switch result {
+                case .success:
+                    print("Skóre uloženo do CloudKit.")
+                case .failure(let error):
+                    print("Chyba při ukládání skóre: \(error.localizedDescription)")
+                }
+            }
+
+        } catch {
+            print("Chyba při ukládání skóre: \(error)")
         }
     }
 }

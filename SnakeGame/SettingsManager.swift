@@ -1,6 +1,8 @@
 import Foundation
+import SwiftUI
 
 class SettingsManager: ObservableObject {
+    @AppStorage("playerName") var playerName: String = ""
     @Published var soundEnabled: Bool {
         didSet {
             UserDefaults.standard.set(soundEnabled, forKey: "SoundEnabled")

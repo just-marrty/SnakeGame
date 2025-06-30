@@ -182,6 +182,7 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $showingLeaderboard) {
             LeaderboardView()
+                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
         }
         .sheet(isPresented: $showingFAQ) {
             FAQView()

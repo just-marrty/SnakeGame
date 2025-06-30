@@ -1,34 +1,53 @@
 import SwiftUI
+import CoreData
 
 struct NameInputView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.managedObjectContext) private var viewContext
-    
+
     let score: Int
     @State private var playerName = ""
     @State private var showingAlert = false
+    @State private var alertMessage = "Please enter a valid name."
+    @State private var isTop10 = false
     @FocusState private var nameFieldFocused: Bool
-    
+    @StateObject private var settings = SettingsManager()
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 VStack(spacing: 30) {
-                    Text("YOU'RE IN TOP 10!")
+                    Text(isTop10 ? "YOU'RE IN TOP 10!" : "KEEP GOING!")
                         .font(.custom("Press Start 2P", size: 16))
-                        .foregroundColor(.snakeGreen)
+                        .foregroundColor(isTop10 ? .yellow : .white)
                         .padding(.top, 20)
-                    
-                    Text("Score: \(score)")
-                        .font(.custom("Press Start 2P", size: 14))
-                        .foregroundColor(.white)
-                    
+
+                    if isTop10 {
+                        Text("Score: \(score)")
+                            .font(.custom("Press Start 2P", size: 14))
+                            .foregroundColor(.white)
+                    } else {
+                        Text("Enter your name to compete with others!")
+                            .font(.custom("Press Start 2P", size: 10))
+                            .foregroundColor(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                    }
+
                     VStack(spacing: 15) {
+                        Text("You cannot edit your name later. Choose wisely!")
+                            .font(.custom("Press Start 2P", size: 12))
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 10)
+                            .lineSpacing(4)
+
                         Text("Enter your name:")
                             .font(.custom("Press Start 2P", size: 12))
                             .foregroundColor(.white.opacity(0.8))
-                        
+
                         TextField("Player Name", text: $playerName)
                             .font(.custom("Press Start 2P", size: 12))
                             .foregroundColor(.white)
@@ -42,9 +61,9 @@ struct NameInputView: View {
                             }
                     }
                     .padding(.horizontal, 40)
-                    
+
                     Spacer()
-                    
+
                     HStack(spacing: 20) {
                         Button("SKIP") {
                             dismiss()
@@ -56,7 +75,7 @@ struct NameInputView: View {
                             RoundedRectangle(cornerRadius: 0)
                                 .stroke(Color.gray, lineWidth: 1)
                         )
-                        
+
                         Button("SAVE") {
                             saveScore()
                         }
@@ -72,36 +91,100 @@ struct NameInputView: View {
             .navigationBarHidden(true)
         }
         .task {
-            nameFieldFocused = true  // okamžitá aktivace klávesnice
+            nameFieldFocused = true
+
+            do {
+                let topFetch: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+                topFetch.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
+                topFetch.fetchLimit = 10
+
+                let topScores = try viewContext.fetch(topFetch)
+
+                if topScores.count < 10 || score > (topScores.last?.score ?? 0) {
+                    isTop10 = true
+                } else {
+                    isTop10 = false
+                }
+
+            } catch {
+                print("Error checking TOP10 eligibility: \(error)")
+                isTop10 = false
+            }
         }
         .alert("Invalid Name", isPresented: $showingAlert) {
             Button("OK") { }
         } message: {
-            Text("Please enter a valid name.")
+            Text(alertMessage)
         }
     }
-    
+
     private func saveScore() {
         let trimmedName = playerName.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         if trimmedName.isEmpty {
+            alertMessage = "Please enter a name."
             showingAlert = true
             return
         }
-        
+
+        if !isPlayerNameUnique(trimmedName) {
+            alertMessage = "This name already exists. Please choose a different one."
+            showingAlert = true
+            return
+        }
+
         let finalName = String(trimmedName.prefix(20))
-        
-        let newScore = HighScore(context: viewContext)
-        newScore.id = UUID()
-        newScore.playerName = finalName
-        newScore.score = Int16(max(score, 0))
-        newScore.date = Date()
-        
+        settings.playerName = finalName
+
+        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "playerName == %@", finalName)
+
         do {
-            try viewContext.save()
+            let existingScores = try viewContext.fetch(fetchRequest)
+
+            if let existing = existingScores.first {
+                if score > existing.score {
+                    existing.score = Int16(score)
+                    existing.date = Date()
+                    try viewContext.save()
+
+                    UserDefaults.standard.set(finalName, forKey: "LastEnteredPlayerName")
+                }
+                dismiss()
+                return
+            }
+
+            let topFetch: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+            topFetch.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
+            topFetch.fetchLimit = 10
+            let topScores = try viewContext.fetch(topFetch)
+
+            if topScores.count < 10 || score > (topScores.last?.score ?? 0) {
+                let newScore = HighScore(context: viewContext)
+                newScore.id = UUID()
+                newScore.playerName = finalName
+                newScore.score = Int16(score)
+                newScore.date = Date()
+                try viewContext.save()
+            }
+
             dismiss()
+
         } catch {
             print("Error saving score: \(error)")
+        }
+    }
+
+    private func isPlayerNameUnique(_ name: String) -> Bool {
+        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "playerName == %@", name)
+
+        do {
+            let count = try viewContext.count(for: fetchRequest)
+            return count == 0
+        } catch {
+            print("Error checking uniqueness: \(error)")
+            return false
         }
     }
 }
