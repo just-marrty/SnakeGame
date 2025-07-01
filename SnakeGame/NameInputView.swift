@@ -166,10 +166,18 @@ struct NameInputView: View {
                 newScore.score = Int16(score)
                 newScore.date = Date()
                 try viewContext.save()
+
+                // Sem vlož:
+                CloudKitManager.saveHighScore(playerName: finalName, score: score) { result in
+                    switch result {
+                    case .success(): print("CloudKit OK")
+                    case .failure(let error): print("CloudKit FAIL: \(error.localizedDescription)")
+                    }
+                    dismiss()
+                }
+                return
             }
-
-            dismiss()
-
+            
         } catch {
             print("Error saving score: \(error)")
         }
