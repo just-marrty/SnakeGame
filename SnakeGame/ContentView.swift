@@ -13,9 +13,9 @@ struct SnakeGameView: View {
     @StateObject private var audioManager = AudioManager.shared
     @State private var showingNameInput = false
     @State private var showingExitConfirmation = false
-    @State private var showHighScoreAlert = false
     @State private var newHighScoreValue: Int?
     @State private var playerEnteredTop10 = false
+    @State private var showingHighScoreModal = false
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
 
@@ -145,7 +145,7 @@ struct SnakeGameView: View {
                 .ignoresSafeArea(edges: .bottom)
 
                 // GAME OVER SCREEN
-                if game.gameState == .gameOver && !showHighScoreAlert {
+                if game.gameState == .gameOver {
                     Color.black.opacity(0.9).ignoresSafeArea()
                     VStack(spacing: 20) {
                         Text("GAME OVER")
@@ -229,53 +229,6 @@ struct SnakeGameView: View {
                     .padding(.horizontal, 40)
                     .zIndex(3)
                 }
-
-                // FULLSCREEN MODAL ALERT
-                if showHighScoreAlert, let score = newHighScoreValue {
-                    Color.black.opacity(0.95)
-                        .ignoresSafeArea()
-                        .zIndex(4)
-
-                    VStack(spacing: 24) {
-                        Text("NEW HIGH SCORE!")
-                            .font(.custom("Press Start 2P", size: 20))
-                            .foregroundColor(.yellow)
-                            .multilineTextAlignment(.center)
-
-                        Text("You scored with \(score) points in the TOP 10!")
-                            .font(.custom("Press Start 2P", size: 12))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(4)
-                        
-                        Text("KEEP GOING!")
-                            .font(.custom("Press Start 2P", size: 12))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(4)
-
-                        Button(action: {
-                            withAnimation {
-                                if settings.soundEnabled {
-                                    audioManager.playEffect("forward")
-                                }
-                                showHighScoreAlert = false
-                                game.gameState = .gameOver 
-                            }
-                        }) {
-                            Text("OK")
-                                .font(.custom("Press Start 2P", size: 14))
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 32)
-                                .background(Color.snakeGreen)
-                                .foregroundColor(.black)
-                        }
-                    }
-                    .padding()
-                    .cornerRadius(12)
-                    .padding(.horizontal, 40)
-                    .zIndex(5)
-                }
             }
 
             // GESTURE
@@ -294,6 +247,9 @@ struct SnakeGameView: View {
             .sheet(isPresented: $showingNameInput) {
                 NameInputView(score: game.score)
             }
+            .sheet(isPresented: $showingHighScoreModal) {
+                HighScoreModalView(game: game, score: game.score)
+            }
         }
         .onChange(of: game.gameState) { _, newState in
             if newState == .gameOver {
@@ -301,85 +257,10 @@ struct SnakeGameView: View {
                     if settings.playerName.isEmpty {
                         showingNameInput = true
                     } else {
-                        checkIfInTop10()
+                        showingHighScoreModal = true  // ← OKAMŽITĚ!
                     }
                 }
             }
-        }
-    }
-
-    private func checkIfInTop10() {
-        guard game.score > 0 else { return }
-
-        CloudKitManager.fetchTopScores { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let topScores):
-                    let sortedScores = topScores.sorted { $0.score > $1.score }
-                    let top10 = Array(sortedScores.prefix(10))
-                    let playerName = settings.playerName
-
-                    if !playerName.isEmpty {
-                        let existing = top10.first(where: { $0.player == playerName })
-
-                        let qualifies = top10.count < 10 || game.score > (top10.last?.score ?? 0)
-
-                        if existing != nil {
-                            // Je v top10, zlepšil si pozici?
-                            if let current = existing, game.score > current.score {
-                                newHighScoreValue = game.score
-                                showHighScoreAlert = true
-                            }
-                        } else if qualifies {
-                            // Nový vstup do TOP10
-                            newHighScoreValue = game.score
-                            showHighScoreAlert = true
-                        }
-                    }
-
-                    updateScore(for: playerName, newScore: game.score)
-
-                case .failure(let error):
-                    print("Chyba při načítání z CloudKit: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-
-    private func updateScore(for name: String, newScore scoreValue: Int) {
-        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "playerName == %@", name)
-
-        do {
-            let results = try viewContext.fetch(fetchRequest)
-
-            if let existing = results.first {
-                if scoreValue > existing.score {
-                    existing.score = Int16(scoreValue)
-                    existing.date = Date()
-                }
-            } else {
-                let newHighScore = HighScore(context: viewContext)
-                newHighScore.id = UUID()
-                newHighScore.playerName = name
-                newHighScore.score = Int16(scoreValue)
-                newHighScore.date = Date()
-            }
-
-            try viewContext.save()
-
-            // ✅ Uložit do CloudKit (pouze touto metodou)
-            CloudKitManager.saveHighScore(playerName: name, score: scoreValue) { result in
-                switch result {
-                case .success:
-                    print("Skóre uloženo do CloudKit.")
-                case .failure(let error):
-                    print("Chyba při ukládání skóre: \(error.localizedDescription)")
-                }
-            }
-
-        } catch {
-            print("Chyba při ukládání skóre: \(error)")
         }
     }
 }

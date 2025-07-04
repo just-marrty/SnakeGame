@@ -18,8 +18,9 @@ struct LeaderboardView: View {
                             .padding(.top)
 
                         if isLoading {
-                            ProgressView("Loading...")
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .snakeGreen))
+                                .scaleEffect(1.5) 
                         } else if leaderboard.isEmpty {
                             Text("There is no score yet.")
                                 .foregroundColor(.gray)
