@@ -119,4 +119,38 @@ struct CloudKitManager {
 
         database.add(operation)
     }
+    
+    static func isPlayerNameTaken(_ name: String, completion: @escaping (Bool) -> Void) {
+        let predicate = NSPredicate(format: "CD_playerName == %@", name)
+        let query = CKQuery(recordType: "CD_HighScore", predicate: predicate)
+        
+        let operation = CKQueryOperation(query: query)
+        operation.resultsLimit = 1
+
+        var found = false
+
+        operation.recordMatchedBlock = { _, result in
+            switch result {
+            case .success:
+                found = true
+            case .failure(let error):
+                logger.error("Chyba při hledání jména \(name): \(error.localizedDescription)")
+            }
+        }
+
+        operation.queryResultBlock = { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    completion(found)
+                case .failure(let error):
+                    logger.error("Chyba při dotazu na jméno \(name): \(error.localizedDescription)")
+                    // Fail-safe: umožní pokračovat, ale zaloguje
+                    completion(false)
+                }
+            }
+        }
+
+        database.add(operation)
+    }
 }

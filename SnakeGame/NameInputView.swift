@@ -7,85 +7,136 @@ struct NameInputView: View {
 
     let score: Int
     @State private var playerName = ""
-    @State private var showingAlert = false
     @State private var alertMessage = "Please enter a valid name."
     @State private var isTop10 = false
+    @State private var isLoaded = false
     @FocusState private var nameFieldFocused: Bool
     @StateObject private var settings = SettingsManager()
+
+    @State private var showCustomAlert = false
 
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                VStack(spacing: 30) {
-                    Text(isTop10 ? "YOU'RE IN TOP 10!" : "KEEP GOING!")
-                        .font(.custom("Press Start 2P", size: 16))
-                        .foregroundColor(isTop10 ? .yellow : .white)
-                        .padding(.top, 20)
+                if isLoaded {
+                    VStack(spacing: 30) {
+                        Text(isTop10 ? "YOU'RE IN TOP 10!" : "KEEP GOING!")
+                            .font(.custom("Press Start 2P", size: 16))
+                            .foregroundColor(isTop10 ? .yellow : .white)
+                            .padding(.top, 20)
 
-                    if isTop10 {
-                        Text("Score: \(score)")
-                            .font(.custom("Press Start 2P", size: 14))
-                            .foregroundColor(.white)
-                    } else {
-                        Text("Enter your name to compete with others!")
+                        if isTop10 {
+                            Text("Score: \(score)")
+                                .font(.custom("Press Start 2P", size: 14))
+                                .foregroundColor(.white)
+                        } else {
+                            Text("Enter your name to compete with others!")
+                                .font(.custom("Press Start 2P", size: 12))
+                                .foregroundColor(.white.opacity(0.7))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 20)
+                        }
+
+                        VStack(spacing: 15) {
+                            Text("You cannot edit your name later. Choose wisely!")
+                                .font(.custom("Press Start 2P", size: 12))
+                                .foregroundColor(.red)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 10)
+                                .lineSpacing(4)
+
+                            Text("Enter your name:")
+                                .font(.custom("Press Start 2P", size: 12))
+                                .foregroundColor(.white.opacity(0.8))
+
+                            TextField("Player name...", text: $playerName)
+                                .font(.custom("Press Start 2P", size: 12))
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.gray.opacity(0.3))
+                                .cornerRadius(6)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .focused($nameFieldFocused)
+                                .onSubmit {
+                                    saveScore()
+                                }
+                        }
+                        .padding(.horizontal, 40)
+
+                        Spacer()
+
+                        HStack(spacing: 20) {
+                            Button("SKIP") {
+                                dismiss()
+                            }
                             .font(.custom("Press Start 2P", size: 10))
-                            .foregroundColor(.white.opacity(0.7))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-                    }
-
-                    VStack(spacing: 15) {
-                        Text("You cannot edit your name later. Choose wisely!")
-                            .font(.custom("Press Start 2P", size: 12))
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 10)
-                            .lineSpacing(4)
-
-                        Text("Enter your name:")
-                            .font(.custom("Press Start 2P", size: 12))
-                            .foregroundColor(.white.opacity(0.8))
-
-                        TextField("Player Name", text: $playerName)
-                            .font(.custom("Press Start 2P", size: 12))
-                            .foregroundColor(.white)
+                            .foregroundColor(.gray)
                             .padding()
-                            .background(Color.gray.opacity(0.3))
-                            .cornerRadius(6)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .focused($nameFieldFocused)
-                            .onSubmit {
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 0)
+                                    .stroke(Color.gray, lineWidth: 1)
+                            )
+
+                            Button("SAVE") {
                                 saveScore()
                             }
+                            .font(.custom("Press Start 2P", size: 10))
+                            .foregroundColor(.black)
+                            .padding()
+                            .background(Color.snakeGreen)
+                            .disabled(playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                        .padding(.bottom, 20)
                     }
-                    .padding(.horizontal, 40)
+                } else {
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .scaleEffect(2.0)
+                            .progressViewStyle(CircularProgressViewStyle(tint: .snakeGreen))
 
-                    Spacer()
+                        Text("Checking Score...")
+                            .font(.custom("Press Start 2P", size: 14))
+                            .foregroundColor(.snakeGreen)
+                    }
+                }
 
-                    HStack(spacing: 20) {
-                        Button("SKIP") {
-                            dismiss()
+                // MARK: - Custom Alert
+                if showCustomAlert {
+                    VStack(spacing: 20) {
+                        Text("Oops!")
+                            .font(.custom("Press Start 2P", size: 16))
+                            .foregroundColor(.yellow)
+
+                        Text(alertMessage)
+                            .font(.custom("Press Start 2P", size: 12))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                            .lineSpacing(4)
+
+                        Button("OK") {
+                            withAnimation {
+                                showCustomAlert = false
+                            }
                         }
-                        .font(.custom("Press Start 2P", size: 10))
-                        .foregroundColor(.gray)
-                        .padding()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 0)
-                                .stroke(Color.gray, lineWidth: 1)
-                        )
-
-                        Button("SAVE") {
-                            saveScore()
-                        }
-                        .font(.custom("Press Start 2P", size: 10))
+                        .font(.custom("Press Start 2P", size: 12))
                         .foregroundColor(.black)
-                        .padding()
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 20)
                         .background(Color.snakeGreen)
-                        .disabled(playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .cornerRadius(0)
                     }
-                    .padding(.bottom, 20)
+                    .padding()
+                    .background(Color.black.opacity(0.9))
+                    .cornerRadius(0)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.snakeGreen, lineWidth: 2)
+                    )
+                    .padding(.horizontal, 40)
+                    .zIndex(10)
                 }
             }
             .navigationBarHidden(true)
@@ -93,28 +144,19 @@ struct NameInputView: View {
         .task {
             nameFieldFocused = true
 
-            do {
-                let topFetch: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-                topFetch.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
-                topFetch.fetchLimit = 10
-
-                let topScores = try viewContext.fetch(topFetch)
-
-                if topScores.count < 10 || score > (topScores.last?.score ?? 0) {
-                    isTop10 = true
-                } else {
-                    isTop10 = false
+            CloudKitManager.fetchTopScores { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let cloudScores):
+                        let minTopScore = cloudScores.map { $0.score }.min() ?? 0
+                        self.isTop10 = self.score > minTopScore
+                    case .failure(let error):
+                        print("Error checking TOP10 eligibility: \(error)")
+                        self.isTop10 = false
+                    }
+                    self.isLoaded = true
                 }
-
-            } catch {
-                print("Error checking TOP10 eligibility: \(error)")
-                isTop10 = false
             }
-        }
-        .alert("Invalid Name", isPresented: $showingAlert) {
-            Button("OK") { }
-        } message: {
-            Text(alertMessage)
         }
     }
 
@@ -123,76 +165,63 @@ struct NameInputView: View {
 
         if trimmedName.isEmpty {
             alertMessage = "Please enter a name."
-            showingAlert = true
+            showCustomAlert = true
             return
         }
 
-        if !isPlayerNameUnique(trimmedName) {
-            alertMessage = "This name already exists. Please choose a different one."
-            showingAlert = true
-            return
-        }
-
-        let finalName = String(trimmedName.prefix(20))
-        settings.playerName = finalName
-
-        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "playerName == %@", finalName)
-
-        do {
-            let existingScores = try viewContext.fetch(fetchRequest)
-
-            if let existing = existingScores.first {
-                if score > existing.score {
-                    existing.score = Int16(score)
-                    existing.date = Date()
-                    try viewContext.save()
-
-                    UserDefaults.standard.set(finalName, forKey: "LastEnteredPlayerName")
-                }
-                dismiss()
+        CloudKitManager.isPlayerNameTaken(trimmedName) { exists in
+            if exists {
+                alertMessage = "This name already exists. Please choose a different one."
+                showCustomAlert = true
                 return
             }
 
-            let topFetch: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-            topFetch.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
-            topFetch.fetchLimit = 10
-            let topScores = try viewContext.fetch(topFetch)
+            let finalName = String(trimmedName.prefix(20))
+            settings.playerName = finalName
 
-            if topScores.count < 10 || score > (topScores.last?.score ?? 0) {
-                let newScore = HighScore(context: viewContext)
-                newScore.id = UUID()
-                newScore.playerName = finalName
-                newScore.score = Int16(score)
-                newScore.date = Date()
-                try viewContext.save()
+            let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "playerName == %@", finalName)
 
-                // Sem vlož:
-                CloudKitManager.saveHighScore(playerName: finalName, score: score) { result in
-                    switch result {
-                    case .success(): print("CloudKit OK")
-                    case .failure(let error): print("CloudKit FAIL: \(error.localizedDescription)")
+            do {
+                let existingScores = try viewContext.fetch(fetchRequest)
+
+                if let existing = existingScores.first {
+                    if score > existing.score {
+                        existing.score = Int16(score)
+                        existing.date = Date()
+                        try viewContext.save()
+                        UserDefaults.standard.set(finalName, forKey: "LastEnteredPlayerName")
                     }
                     dismiss()
+                    return
                 }
-                return
+
+                let topFetch: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+                topFetch.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
+                topFetch.fetchLimit = 10
+                let topScores = try viewContext.fetch(topFetch)
+
+                let minTopScore = topScores.map { Int($0.score) }.min() ?? 0
+
+                if score > minTopScore {
+                    let newScore = HighScore(context: viewContext)
+                    newScore.id = UUID()
+                    newScore.playerName = finalName
+                    newScore.score = Int16(score)
+                    newScore.date = Date()
+                    try viewContext.save()
+
+                    CloudKitManager.saveHighScore(playerName: finalName, score: score) { result in
+                        dismiss()
+                    }
+                } else {
+                    dismiss()
+                }
+
+            } catch {
+                alertMessage = "Unexpected error while saving score."
+                showCustomAlert = true
             }
-            
-        } catch {
-            print("Error saving score: \(error)")
-        }
-    }
-
-    private func isPlayerNameUnique(_ name: String) -> Bool {
-        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "playerName == %@", name)
-
-        do {
-            let count = try viewContext.count(for: fetchRequest)
-            return count == 0
-        } catch {
-            print("Error checking uniqueness: \(error)")
-            return false
         }
     }
 }

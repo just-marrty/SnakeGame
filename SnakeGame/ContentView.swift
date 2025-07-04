@@ -145,7 +145,7 @@ struct SnakeGameView: View {
                 .ignoresSafeArea(edges: .bottom)
 
                 // GAME OVER SCREEN
-                if game.gameState == .gameOver {
+                if game.gameState == .gameOver && !showHighScoreAlert {
                     Color.black.opacity(0.9).ignoresSafeArea()
                     VStack(spacing: 20) {
                         Text("GAME OVER")
@@ -231,7 +231,6 @@ struct SnakeGameView: View {
                 }
 
                 // FULLSCREEN MODAL ALERT
-                // FULLSCREEN MODAL ALERT
                 if showHighScoreAlert, let score = newHighScoreValue {
                     Color.black.opacity(0.95)
                         .ignoresSafeArea()
@@ -242,17 +241,18 @@ struct SnakeGameView: View {
                             .font(.custom("Press Start 2P", size: 20))
                             .foregroundColor(.yellow)
                             .multilineTextAlignment(.center)
-                            .lineSpacing(4)
 
-                        Text(
-                            playerEnteredTop10 ?
-                            "You scored \(score) points\nand entered the TOP 10!" :
-                            "You scored \(score) points\nand beat your previous best!"
-                        )
-                        .font(.custom("Press Start 2P", size: 12))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
+                        Text("You scored with \(score) points in the TOP 10!")
+                            .font(.custom("Press Start 2P", size: 12))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
+                        
+                        Text("KEEP GOING!")
+                            .font(.custom("Press Start 2P", size: 12))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
 
                         Button(action: {
                             withAnimation {
@@ -260,6 +260,7 @@ struct SnakeGameView: View {
                                     audioManager.playEffect("forward")
                                 }
                                 showHighScoreAlert = false
+                                game.gameState = .gameOver 
                             }
                         }) {
                             Text("OK")
@@ -268,13 +269,11 @@ struct SnakeGameView: View {
                                 .padding(.horizontal, 32)
                                 .background(Color.snakeGreen)
                                 .foregroundColor(.black)
-                                .cornerRadius(0)
                         }
                     }
                     .padding()
                     .cornerRadius(12)
                     .padding(.horizontal, 40)
-                    .transition(.scale)
                     .zIndex(5)
                 }
             }
@@ -298,7 +297,13 @@ struct SnakeGameView: View {
         }
         .onChange(of: game.gameState) { _, newState in
             if newState == .gameOver {
-                checkIfInTop10()
+                if game.score > 0 {
+                    if settings.playerName.isEmpty {
+                        showingNameInput = true
+                    } else {
+                        checkIfInTop10()
+                    }
+                }
             }
         }
     }
@@ -306,45 +311,38 @@ struct SnakeGameView: View {
     private func checkIfInTop10() {
         guard game.score > 0 else { return }
 
-        let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
-        fetchRequest.fetchLimit = 10
+        CloudKitManager.fetchTopScores { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let topScores):
+                    let sortedScores = topScores.sorted { $0.score > $1.score }
+                    let top10 = Array(sortedScores.prefix(10))
+                    let playerName = settings.playerName
 
-        do {
-            let topScores = try viewContext.fetch(fetchRequest)
+                    if !playerName.isEmpty {
+                        let existing = top10.first(where: { $0.player == playerName })
 
-            if !settings.playerName.isEmpty {
-                if let existing = topScores.first(where: { $0.playerName == settings.playerName }) {
-                    if game.score > existing.score {
-                        newHighScoreValue = game.score
-                        showHighScoreAlert = true
+                        let qualifies = top10.count < 10 || game.score > (top10.last?.score ?? 0)
 
-                        // Nastavení, zda hráč JE v top10
-                        playerEnteredTop10 = topScores.contains(where: { $0.playerName == settings.playerName })
-
-                        updateScore(for: settings.playerName, newScore: game.score)
+                        if existing != nil {
+                            // Je v top10, zlepšil si pozici?
+                            if let current = existing, game.score > current.score {
+                                newHighScoreValue = game.score
+                                showHighScoreAlert = true
+                            }
+                        } else if qualifies {
+                            // Nový vstup do TOP10
+                            newHighScoreValue = game.score
+                            showHighScoreAlert = true
+                        }
                     }
-                    return
+
+                    updateScore(for: playerName, newScore: game.score)
+
+                case .failure(let error):
+                    print("Chyba při načítání z CloudKit: \(error.localizedDescription)")
                 }
-
-                // Hráč zatím v top10 není → kontroluj, zda se kvalifikuje nově
-                if topScores.count < 10 || game.score > (topScores.last?.score ?? 0) {
-                    newHighScoreValue = game.score
-                    playerEnteredTop10 = true
-                    showHighScoreAlert = true
-
-                    updateScore(for: settings.playerName, newScore: game.score)
-                }
-                return
             }
-
-            // Hráč ještě nezadal jméno
-            if topScores.count < 10 || game.score > (topScores.last?.score ?? 0) {
-                showingNameInput = true
-            }
-
-        } catch {
-            print("Chyba při načítání top10: \(error)")
         }
     }
 
