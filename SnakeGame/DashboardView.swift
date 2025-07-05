@@ -10,13 +10,13 @@ struct DashboardView: View {
     @State private var showingSettings = false
     @State private var showingLeaderboard = false
     @State private var showingFAQ = false
+    @State private var isStartingGame = false
     @AppStorage("SnakeHighScore") private var highScore = 0
     @StateObject private var settings = SettingsManager()
     @StateObject private var audioManager = AudioManager.shared
 
     var body: some View {
         NavigationView {
-            
             ZStack {
                 Color(red: 50/255, green: 35/255, blue: 20/255).ignoresSafeArea()
 
@@ -55,22 +55,36 @@ struct DashboardView: View {
                         }
                         
                         Button(action: {
+                            isStartingGame = true
                             audioManager.stopBackgroundMusic()
                             audioManager.playEffect("game-start") {
-                                showingGame = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                    showingGame = true
+                                    isStartingGame = false
+                                }
                             }
                         }) {
-                            Text("START GAME")
-                                .font(.custom("PressStart2P-Regular", size: 12))
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.snakeGreen)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 0)
-                                        .stroke(Color.snakeGreen, lineWidth: 2)
-                                )
+                            ZStack {
+                                Text("START GAME")
+                                    .font(.custom("PressStart2P-Regular", size: 12))
+                                    .foregroundColor(.black)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.snakeGreen)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 0)
+                                            .stroke(Color.snakeGreen, lineWidth: 2)
+                                    )
+                                    .opacity(isStartingGame ? 0 : 1)
+                                
+                                if isStartingGame {
+                                    ProgressView()
+                                        .scaleEffect(1.5)
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .snakeGreen))
+                                }
+                            }
                         }
+                        .disabled(isStartingGame)
                         
                         Button(action: {
                             audioManager.playEffect("forward") {
@@ -103,7 +117,6 @@ struct DashboardView: View {
                                         .stroke(Color.white, lineWidth: 2)
                                 )
                         }
-
                     }
                     .padding(.horizontal, 40)
 
@@ -188,6 +201,10 @@ struct DashboardView: View {
             FAQView()
         }
     }
+}
+
+#Preview {
+    DashboardView()
 }
 
 #Preview {

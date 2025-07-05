@@ -10,6 +10,7 @@ struct NameInputView: View {
     @State private var alertMessage = "Please enter a valid name."
     @State private var isTop10 = false
     @State private var isLoaded = false
+    @State private var isSaving = false
     @FocusState private var nameFieldFocused: Bool
     @StateObject private var settings = SettingsManager()
 
@@ -80,6 +81,7 @@ struct NameInputView: View {
                             )
 
                             Button("SAVE") {
+                                isSaving = true
                                 saveScore()
                             }
                             .font(.custom("Press Start 2P", size: 10))
@@ -138,6 +140,18 @@ struct NameInputView: View {
                     .padding(.horizontal, 40)
                     .zIndex(10)
                 }
+                
+                // Loading overlay uprostřed
+                if isSaving {
+                    Color.black.opacity(0.8)
+                        .ignoresSafeArea()
+                    
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .scaleEffect(2.0)
+                            .progressViewStyle(CircularProgressViewStyle(tint: .snakeGreen))
+                    }
+                }
             }
             .navigationBarHidden(true)
         }
@@ -154,7 +168,10 @@ struct NameInputView: View {
                         print("Error checking TOP10 eligibility: \(error)")
                         self.isTop10 = false
                     }
-                    self.isLoaded = true
+                    // Přidání 1.5 sekundového zpoždění (stejně jako v HighScoreModalView)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        self.isLoaded = true
+                    }
                 }
             }
         }
@@ -166,61 +183,71 @@ struct NameInputView: View {
         if trimmedName.isEmpty {
             alertMessage = "Please enter a name."
             showCustomAlert = true
+            isSaving = false  // ← Zastaví loading při chybě
             return
         }
 
         CloudKitManager.isPlayerNameTaken(trimmedName) { exists in
-            if exists {
-                alertMessage = "This name already exists. Please choose a different one."
-                showCustomAlert = true
-                return
-            }
-
-            let finalName = String(trimmedName.prefix(20))
-            settings.playerName = finalName
-
-            let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "playerName == %@", finalName)
-
-            do {
-                let existingScores = try viewContext.fetch(fetchRequest)
-
-                if let existing = existingScores.first {
-                    if score > existing.score {
-                        existing.score = Int16(score)
-                        existing.date = Date()
-                        try viewContext.save()
-                        UserDefaults.standard.set(finalName, forKey: "LastEnteredPlayerName")
-                    }
-                    dismiss()
+            DispatchQueue.main.async {
+                if exists {
+                    alertMessage = "This name already exists. Please choose a different one."
+                    showCustomAlert = true
+                    isSaving = false  // ← Zastaví loading při chybě
                     return
                 }
 
-                let topFetch: NSFetchRequest<HighScore> = HighScore.fetchRequest()
-                topFetch.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
-                topFetch.fetchLimit = 10
-                let topScores = try viewContext.fetch(topFetch)
+                let finalName = String(trimmedName.prefix(20))
+                settings.playerName = finalName
 
-                let minTopScore = topScores.map { Int($0.score) }.min() ?? 0
+                let fetchRequest: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "playerName == %@", finalName)
 
-                if score > minTopScore {
-                    let newScore = HighScore(context: viewContext)
-                    newScore.id = UUID()
-                    newScore.playerName = finalName
-                    newScore.score = Int16(score)
-                    newScore.date = Date()
-                    try viewContext.save()
+                do {
+                    let existingScores = try viewContext.fetch(fetchRequest)
 
-                    CloudKitManager.saveHighScore(playerName: finalName, score: score) { result in
+                    if let existing = existingScores.first {
+                        if score > existing.score {
+                            existing.score = Int16(score)
+                            existing.date = Date()
+                            try viewContext.save()
+                            UserDefaults.standard.set(finalName, forKey: "LastEnteredPlayerName")
+                        }
+                        isSaving = false  // ← Zastaví loading před zavřením
+                        dismiss()
+                        return
+                    }
+
+                    let topFetch: NSFetchRequest<HighScore> = HighScore.fetchRequest()
+                    topFetch.sortDescriptors = [NSSortDescriptor(keyPath: \HighScore.score, ascending: false)]
+                    topFetch.fetchLimit = 10
+                    let topScores = try viewContext.fetch(topFetch)
+
+                    let minTopScore = topScores.map { Int($0.score) }.min() ?? 0
+
+                    if score > minTopScore {
+                        let newScore = HighScore(context: viewContext)
+                        newScore.id = UUID()
+                        newScore.playerName = finalName
+                        newScore.score = Int16(score)
+                        newScore.date = Date()
+                        try viewContext.save()
+
+                        CloudKitManager.saveHighScore(playerName: finalName, score: score) { result in
+                            DispatchQueue.main.async {
+                                isSaving = false  // ← Zastaví loading před zavřením
+                                dismiss()
+                            }
+                        }
+                    } else {
+                        isSaving = false  // ← Zastaví loading před zavřením
                         dismiss()
                     }
-                } else {
-                    dismiss()
-                }
 
-            } catch {
-                alertMessage = "Unexpected error while saving score."
-                showCustomAlert = true
+                } catch {
+                    alertMessage = "Unexpected error while saving score."
+                    showCustomAlert = true
+                    isSaving = false  // ← Zastaví loading při chybě
+                }
             }
         }
     }

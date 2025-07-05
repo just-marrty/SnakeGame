@@ -13,68 +13,65 @@ struct HighScoreModalView: View {
     let score: Int
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                
-                if isLoading {
-                    VStack(spacing: 20) {
-                        ProgressView()
-                            .scaleEffect(2.0)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .snakeGreen))
-                        Text("Checking Score...")
-                            .font(.custom("Press Start 2P", size: 14))
-                            .foregroundColor(.snakeGreen)
-                    }
-                } else if isInTop10 {
-                    VStack(spacing: 24) {
-                        Text("NEW HIGH SCORE!")
-                            .font(.custom("Press Start 2P", size: 20))
-                            .foregroundColor(.yellow)
-                            .multilineTextAlignment(.center)
-                        
-                        Text("You scored with \(score) points in the TOP 10!")
-                            .font(.custom("Press Start 2P", size: 12))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(4)
-                        
-                        Text("KEEP GOING!")
-                            .font(.custom("Press Start 2P", size: 12))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(4)
-                        
-                        Button(action: {
-                            withAnimation {
-                                if settings.soundEnabled {
-                                    audioManager.playEffect("forward")
-                                }
-                                dismiss()
-                                game.gameState = .gameOver
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            if isLoading {
+                VStack(spacing: 20) {
+                    ProgressView()
+                        .scaleEffect(2.0)
+                        .progressViewStyle(CircularProgressViewStyle(tint: .snakeGreen))
+                    Text("Checking Score...")
+                        .font(.custom("Press Start 2P", size: 14))
+                        .foregroundColor(.snakeGreen)
+                }
+            } else if isInTop10 {
+                VStack(spacing: 24) {
+                    Text("NEW HIGH SCORE!")
+                        .font(.custom("Press Start 2P", size: 20))
+                        .foregroundColor(.yellow)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("You scored with \(score) points in the TOP 10!")
+                        .font(.custom("Press Start 2P", size: 12))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                    
+                    Text("KEEP GOING!")
+                        .font(.custom("Press Start 2P", size: 12))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                    
+                    Button(action: {
+                        withAnimation {
+                            if settings.soundEnabled {
+                                audioManager.playEffect("forward")
                             }
-                        }) {
-                            Text("OK")
-                                .font(.custom("Press Start 2P", size: 14))
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 32)
-                                .background(Color.snakeGreen)
-                                .foregroundColor(.black)
-                        }
-                    }
-                    .padding()
-                    .cornerRadius(12)
-                    .padding(.horizontal, 40)
-                } else {
-                    // Není v TOP 10, zavři modal a zobraz GAME OVER
-                    Color.clear
-                        .onAppear {
                             dismiss()
                             game.gameState = .gameOver
                         }
+                    }) {
+                        Text("OK")
+                            .font(.custom("Press Start 2P", size: 14))
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 32)
+                            .background(Color.snakeGreen)
+                            .foregroundColor(.black)
+                    }
                 }
+                .padding()
+                .cornerRadius(12)
+                .padding(.horizontal, 40)
+            } else {
+                // Není v TOP 10, zavři modal a zobraz GAME OVER
+                Color.black.ignoresSafeArea()
+                    .onAppear {
+                        dismiss()
+                        game.gameState = .gameOver
+                    }
             }
-            .navigationBarHidden(true)
         }
         .task {
             checkIfInTop10()
@@ -107,10 +104,16 @@ struct HighScoreModalView: View {
                         isInTop10 = false
                     }
                     
-                    isLoading = false
+                    // Přidání zpoždění
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        isLoading = false
+                    }
                 case .failure:
                     isInTop10 = false
-                    isLoading = false
+                    // I při chybě zpoždění
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        isLoading = false
+                    }
                 }
             }
         }
