@@ -42,6 +42,8 @@ class SnakeGame: ObservableObject {
     private var nextSpeedIncreaseTime: TimeInterval = 20
     private var speedSteps: [TimeInterval] = [0.15, 0.12, 0.10, 0.08]
     private var currentSpeedStep = 0
+    private var pendingDirection: Direction?
+        private var lastDirectionChangeTime: TimeInterval = 0
 
     init(settings: SettingsManager) {
         self.settings = settings
@@ -107,11 +109,20 @@ class SnakeGame: ObservableObject {
     }
 
     func changeDirection(_ newDirection: Direction) {
+        let currentTime = Date().timeIntervalSince1970
+            
+        // Ignorujte příliš rychlé změny
+        if currentTime - lastDirectionChangeTime < 0.08 {
+            return
+        }
+        
+        // Ignorujte opačné směry
         switch (direction, newDirection) {
         case (.up, .down), (.down, .up), (.left, .right), (.right, .left):
             return
         default:
-            direction = newDirection
+            pendingDirection = newDirection
+            lastDirectionChangeTime = currentTime
         }
     }
 
@@ -140,7 +151,11 @@ class SnakeGame: ObservableObject {
 
     private func moveSnake() {
         guard gameState == .playing else { return }
-
+        
+        if let newDirection = pendingDirection {
+            direction = newDirection
+            pendingDirection = nil
+        }
         if foods.isEmpty {
             generateFood()
             return

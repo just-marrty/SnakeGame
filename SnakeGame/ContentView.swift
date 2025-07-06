@@ -16,6 +16,7 @@ struct SnakeGameView: View {
     @State private var newHighScoreValue: Int?
     @State private var playerEnteredTop10 = false
     @State private var showingHighScoreModal = false
+    @State private var lastGestureTime: TimeInterval = 0
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
 
