@@ -247,8 +247,9 @@ struct SnakeGameView: View {
             .sheet(isPresented: $showingNameInput) {
                 NameInputView(score: game.score)
             }
-            .sheet(isPresented: $showingHighScoreModal) {
+            .fullScreenCover(isPresented: $showingHighScoreModal) {
                 HighScoreModalView(game: game, score: game.score)
+                    .background(Color.black.ignoresSafeArea())
             }
         }
         .onChange(of: game.gameState) { _, newState in
