@@ -33,9 +33,8 @@ struct DashboardView: View {
                         Text("SNAKE GAME")
                             .font(.custom("PressStart2P-Regular", size: 22))
                             .foregroundColor(.white)
+                            .padding(.bottom, 10)
                     }
-
-                    Spacer()
 
                     VStack(spacing: 20) {
                         Button(action: {
@@ -121,17 +120,27 @@ struct DashboardView: View {
                     .padding(.horizontal, 40)
 
                     VStack(spacing: 10) {
-                        Text("HIGH SCORE")
+                        Text("PLAYER")
                             .font(.custom("PressStart2P-Regular", size: 12))
                             .foregroundColor(.white.opacity(0.7))
 
+                        Text(settings.playerName.isEmpty ? "..." : settings.playerName)
+                            .font(.custom("PressStart2P-Regular", size: 13))
+                            .foregroundColor(.snakeGreen)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                        
+                        Text("HIGH SCORE")
+                            .font(.custom("PressStart2P-Regular", size: 12))
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding(.top, 20)
+
                         Text("\(highScore)")
-                            .font(.custom("PressStart2P-Regular", size: 18))
+                            .font(.custom("PressStart2P-Regular", size: 13))
                             .foregroundColor(Color.snakeGreen)
                     }
+                    .frame(maxHeight: .infinity, alignment: .top)
                     .padding(.top, 20)
-
-                    Spacer()
 
                     VStack(spacing: 8) {
                         Text("Snake Game version 1.0")
@@ -155,7 +164,7 @@ struct DashboardView: View {
                         }
                     }
                     .multilineTextAlignment(.center)
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 10)
                 }
             }
         }
@@ -165,6 +174,22 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView(settings: settings)
+                .presentationBackground(.black)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.hidden)
+        }
+        .sheet(isPresented: $showingLeaderboard) {
+            LeaderboardView()
+                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                .presentationBackground(.black)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.hidden)
+        }
+        .sheet(isPresented: $showingFAQ) {
+            FAQView()
+                .presentationBackground(.black)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.hidden)
         }
         .onAppear {
             if settings.soundEnabled && !audioManager.isBackgroundMusicPlaying {
@@ -193,18 +218,7 @@ struct DashboardView: View {
         .onReceive(NotificationCenter.default.publisher(for: .highScoreReset)) { _ in
             // highScore se aktualizuje automaticky díky @AppStorage
         }
-        .sheet(isPresented: $showingLeaderboard) {
-            LeaderboardView()
-                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
-        }
-        .sheet(isPresented: $showingFAQ) {
-            FAQView()
-        }
     }
-}
-
-#Preview {
-    DashboardView()
 }
 
 #Preview {

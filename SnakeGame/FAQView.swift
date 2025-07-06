@@ -9,6 +9,7 @@ struct FAQItem: Identifiable {
 struct FAQView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var expandedItem: UUID?
+    @StateObject private var audioManager = AudioManager.shared
 
     private let faqItems: [FAQItem] = [
         FAQItem(question: "How do I control the snake?", answer: "Swipe in the direction you want the snake to move: up, down, left, or right."),
@@ -33,7 +34,9 @@ struct FAQView: View {
                         .foregroundColor(.snakeGreen)
                     Spacer()
                     Button(action: {
-                        dismiss()
+                        audioManager.playEffect("backward") {
+                            dismiss()
+                        }
                     }) {
                         Text("EXIT")
                             .font(.custom("Press Start 2P", size: 10))
