@@ -23,17 +23,22 @@ struct DashboardView: View {
                 VStack(spacing: 40) {
                     Spacer()
 
-                    VStack(spacing: 20) {
+                    VStack(spacing: 10) {
                         Image("snake")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 120, height: 120)
-                            .shadow(color: .green.opacity(0.5), radius: 10)
-
+                            .shadow(color: .yellow.opacity(0.5), radius: 10)
+                        
                         Text("SNAKE GAME")
                             .font(.custom("PressStart2P-Regular", size: 22))
-                            .foregroundColor(.white)
-                            .padding(.bottom, 10)
+                            .foregroundColor(.yellow)
+                            .padding(.bottom, 5)
+                        
+                        Text("REBORN")
+                            .font(.custom("PressStart2P-Regular", size: 18))
+                            .foregroundColor(.yellow)
+                            .padding(.bottom, 5)
                     }
 
                     VStack(spacing: 20) {
@@ -122,7 +127,7 @@ struct DashboardView: View {
                     VStack(spacing: 10) {
                         Text("PLAYER")
                             .font(.custom("PressStart2P-Regular", size: 12))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.white)
 
                         Text(settings.playerName.isEmpty ? "..." : settings.playerName)
                             .font(.custom("PressStart2P-Regular", size: 13))
@@ -132,7 +137,7 @@ struct DashboardView: View {
                         
                         Text("HIGH SCORE")
                             .font(.custom("PressStart2P-Regular", size: 12))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.white)
                             .padding(.top, 20)
 
                         Text("\(highScore)")
@@ -158,7 +163,7 @@ struct DashboardView: View {
                                 .underline()
                         )
                         .onTapGesture {
-                            if let url = URL(string: "https://www.moje-webovka.cz/") {
+                            if let url = URL(string: "https://www.my-games.eu/") {
                                 UIApplication.shared.open(url)
                             }
                         }

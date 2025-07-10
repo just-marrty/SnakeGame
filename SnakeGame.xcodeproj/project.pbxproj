@@ -29,8 +29,8 @@
 
 /* Begin PBXFileReference section */
 		5B269B552E07320700A6C7C2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
-		5B998D522E16BF76006D2519 /* SnakeGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = SnakeGameTests.xctest; path = "/Users/martin/Library/CloudStorage/Dropbox/SwiftProjects/SnakeGame/build/Debug-iphoneos/SnakeGame.app/PlugIns/SnakeGameTests.xctest"; sourceTree = "<absolute>"; };
-		5B998D532E16BF76006D2519 /* SnakeGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = SnakeGameUITests.xctest; path = "/Users/martin/Library/CloudStorage/Dropbox/SwiftProjects/SnakeGame/build/Debug-iphoneos/SnakeGameUITests-Runner.app/PlugIns/SnakeGameUITests.xctest"; sourceTree = "<absolute>"; };
+		5B32268D2E1D849E007377C8 /* SnakeGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnakeGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B32268E2E1D849E007377C8 /* SnakeGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnakeGameUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BE6D5182E1ACD800031071D /* SnakeGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnakeGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -98,6 +98,8 @@
 				5B269ABC2E0475D500A6C7C2 /* SnakeGameTests */,
 				5B269AC62E0475D500A6C7C2 /* SnakeGameUITests */,
 				5BE6D5182E1ACD800031071D /* SnakeGame.app */,
+				5B32268D2E1D849E007377C8 /* SnakeGameTests.xctest */,
+				5B32268E2E1D849E007377C8 /* SnakeGameUITests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -146,7 +148,7 @@
 			packageProductDependencies = (
 			);
 			productName = SnakeGameTests;
-			productReference = 5B998D522E16BF76006D2519 /* SnakeGameTests.xctest */;
+			productReference = 5B32268D2E1D849E007377C8 /* SnakeGameTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		5B269AC22E0475D500A6C7C2 /* SnakeGameUITests */ = {
@@ -169,7 +171,7 @@
 			packageProductDependencies = (
 			);
 			productName = SnakeGameUITests;
-			productReference = 5B998D532E16BF76006D2519 /* SnakeGameUITests.xctest */;
+			productReference = 5B32268E2E1D849E007377C8 /* SnakeGameUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -407,12 +409,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SnakeGame/SnakeGame.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 63;
+				CURRENT_PROJECT_VERSION = 64;
 				DEVELOPMENT_TEAM = 959R7732AD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SnakeGame/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = SnakeGame;
+				INFOPLIST_KEY_CFBundleDisplayName = "SG: Reborn";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -443,12 +445,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SnakeGame/SnakeGame.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 63;
+				CURRENT_PROJECT_VERSION = 64;
 				DEVELOPMENT_TEAM = 959R7732AD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SnakeGame/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = SnakeGame;
+				INFOPLIST_KEY_CFBundleDisplayName = "SG: Reborn";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
